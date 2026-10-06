@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.lax1dude.eaglercraft.Keyboard;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -101,6 +102,8 @@ public abstract class GuiContainer extends GuiScreen {
 		int i = this.guiLeft;
 		int j = this.guiTop;
 		this.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+		GuiShaderRenderer.drawPanel(this.guiLeft, this.guiTop, this.xSize, this.ySize, this.width, this.height,
+				0xCC080A0D, 0xFFE1283D, 5.0F, (Minecraft.getSystemTime() % 100000L) / 1000.0F);
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();

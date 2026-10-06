@@ -13,6 +13,7 @@ public class GuiCustomizeSkin extends GuiScreen {
 	private String title;
 	
 	private GuiButton enableFNAWSkinsButton;
+	private GuiButton customUiButton;
 
 	public GuiCustomizeSkin(GuiScreen parentScreenIn) {
 		this.parentScreen = parentScreenIn;
@@ -44,8 +45,10 @@ public class GuiCustomizeSkin extends GuiScreen {
 		}
 
 		this.buttonList.add(enableFNAWSkinsButton = new GuiButton(201, this.width / 2 - 100, this.height / 6 + 10 + 24 * (i >> 1), I18n.format("options.skinCustomisation.enableFNAWSkins") + ": " + I18n.format(mc.gameSettings.enableFNAWSkins ? "options.on" : "options.off")));
-		this.buttonList.add(
-				new GuiButton(200, this.width / 2 - 100, this.height / 6 + 40 + 24 * (i >> 1), I18n.format("gui.done")));
+		this.buttonList.add(customUiButton = new GuiButton(202, this.width / 2 - 100,
+				this.height / 6 + 40 + 24 * (i >> 1), "Redline UI: " + (mc.gameSettings.customUiEnabled ? "ON" : "OFF")));
+		this.buttonList.add(new GuiButton(200, this.width / 2 - 100,
+				this.height / 6 + 68 + 24 * (i >> 1), I18n.format("gui.done")));
 	}
 
 	/**
@@ -78,6 +81,10 @@ public class GuiCustomizeSkin extends GuiScreen {
 				mc.gameSettings.enableFNAWSkins = !mc.gameSettings.enableFNAWSkins;
 				mc.getRenderManager().setEnableFNAWSkins(mc.getEnableFNAWSkins());
 				enableFNAWSkinsButton.displayString = I18n.format("options.skinCustomisation.enableFNAWSkins") + ": " + I18n.format(mc.gameSettings.enableFNAWSkins ? "options.on" : "options.off");
+			} else if (button.id == 202) {
+				mc.gameSettings.customUiEnabled = !mc.gameSettings.customUiEnabled;
+				customUiButton.displayString = "Redline UI: " + (mc.gameSettings.customUiEnabled ? "ON" : "OFF");
+				mc.gameSettings.saveOptions();
 			} else if (button instanceof GuiCustomizeSkin.ButtonPart) {
 				EnumPlayerModelParts enumplayermodelparts = ((GuiCustomizeSkin.ButtonPart) button).playerModelParts;
 				this.mc.gameSettings.switchModelPartEnabled(enumplayermodelparts);

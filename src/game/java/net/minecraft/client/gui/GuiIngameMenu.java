@@ -7,14 +7,17 @@ import net.lax1dude.eaglercraft.minecraft.GuiButtonWithStupidIcons;
 import net.lax1dude.eaglercraft.notifications.GuiButtonNotifBell;
 import net.lax1dude.eaglercraft.notifications.GuiScreenNotifications;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
 import net.lax1dude.eaglercraft.sp.SingleplayerServerController;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.Mouse;
+import net.lax1dude.eaglercraft.profile.GuiScreenEditProfile;
 import net.lax1dude.eaglercraft.webview.GuiScreenPhishingWarning;
 import net.lax1dude.eaglercraft.webview.GuiScreenRecieveServerInfo;
 import net.lax1dude.eaglercraft.webview.GuiScreenServerInfo;
 import net.minecraft.client.gui.achievement.GuiStats;
 import net.minecraft.client.gui.advancements.GuiScreenAdvancements;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 
@@ -36,6 +39,8 @@ public class GuiIngameMenu extends GuiScreen {
 		this.buttonList.add(new GuiButtonWithStupidIcons(1, this.width / 2 - 100, this.height / 4 + 120 + -16, I18n.format("menu.returnToMenu"), PauseMenuCustomizeState.icon_disconnect_L,
 				PauseMenuCustomizeState.icon_disconnect_L_aspect, PauseMenuCustomizeState.icon_disconnect_R,
 				PauseMenuCustomizeState.icon_disconnect_R_aspect));
+		this.buttonList.add(new GuiButton(12, 12, this.height - 48, 104, 20,
+				"Character profile"));
 
 		if (!this.mc.isIntegratedServerRunning()) {
 			(this.buttonList.get(0)).displayString = I18n.format("menu.disconnect");
@@ -168,6 +173,9 @@ public class GuiIngameMenu extends GuiScreen {
 		case 11:
 			this.mc.displayGuiScreen(new GuiScreenNotifications(this));
 			break;
+		case 12:
+			this.mc.displayGuiScreen(new GuiScreenEditProfile(this));
+			break;
 		}
 	}
 
@@ -189,6 +197,8 @@ public class GuiIngameMenu extends GuiScreen {
 	 */
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.drawDefaultBackground();
+		GuiShaderRenderer.drawPanel(this.width / 2 - 118, this.height / 4 - 10, 236, 190, this.width, this.height,
+				0xD90A0C10, 0xFFE1283D, 10.0F, (Minecraft.getSystemTime() % 100000L) / 1000.0F);
 		String titleStr = I18n.format("menu.game", new Object[0]);
 		int titleStrWidth = fontRendererObj.getStringWidth(titleStr);
 		this.drawString(this.fontRendererObj, titleStr, (this.width - titleStrWidth) / 2, 40, 16777215);

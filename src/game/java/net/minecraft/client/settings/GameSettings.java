@@ -183,6 +183,9 @@ public class GameSettings {
 	public boolean hasSeenFirstLoad;
 	public boolean hasWorldListBeenConverted;
 	public boolean enableFNAWSkins = true;
+	public boolean customUiEnabled = true;
+	public boolean smoothFontEnabled = true;
+	public boolean heavyOptimization = true;
 	public boolean hasHiddenPhishWarning = false;
 	public boolean hideDefaultUsernameWarning = false;
 	public int ofChunkUpdates = 1;
@@ -947,6 +950,18 @@ public class GameSettings {
 					if ("enableFNAWSkins".equals(s1)) {
 						this.enableFNAWSkins = "true".equals(s2);
 					}
+
+					if ("customUiEnabled".equals(s1)) {
+						this.customUiEnabled = "true".equals(s2);
+					}
+
+					if ("smoothFontEnabled".equals(s1)) {
+						this.smoothFontEnabled = "true".equals(s2);
+					}
+
+					if ("heavyOptimization".equals(s1)) {
+						this.heavyOptimization = "true".equals(s2);
+					}
 					
 					if ("hasHiddenPhishWarning".equals(s1)) {
 						this.hasHiddenPhishWarning = "true".equals(s2);
@@ -1120,6 +1135,9 @@ public class GameSettings {
 			printwriter.println("hasSeenFirstLoad:" + this.hasSeenFirstLoad);
 			printwriter.println("hasWorldListBeenConverted:" + this.hasWorldListBeenConverted);
 			printwriter.println("enableFNAWSkins:" + this.enableFNAWSkins);
+			printwriter.println("customUiEnabled:" + this.customUiEnabled);
+			printwriter.println("smoothFontEnabled:" + this.smoothFontEnabled);
+			printwriter.println("heavyOptimization:" + this.heavyOptimization);
 			printwriter.println("hasHiddenPhishWarning:" + this.hasHiddenPhishWarning);
 			printwriter.println("hideDefaultUsernameWarning:" + this.hideDefaultUsernameWarning);
 			printwriter.println("ofChunkUpdates:" + this.ofChunkUpdates);

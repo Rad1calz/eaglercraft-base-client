@@ -95,6 +95,12 @@ public class GuiOptions extends GuiScreen {
 				I18n.format("options.chat.title")));
 		this.buttonList.add(new GuiButton(105, this.width / 2 - 155, this.height / 6 + 120 - 6, 150, 20,
 				I18n.format("options.resourcepack")));
+		this.buttonList.add(new GuiButton(111, this.width / 2 + 5, this.height / 6 + 120 - 6, 150, 20,
+				"Redline UI: " + (this.settings.customUiEnabled ? "ON" : "OFF")));
+		this.buttonList.add(new GuiButton(112, this.width / 2 - 155, this.height / 6 + 144 - 6, 150, 20,
+				"Smooth font: " + (this.settings.smoothFontEnabled ? "ON" : "OFF")));
+		this.buttonList.add(new GuiButton(113, this.width / 2 + 5, this.height / 6 + 144 - 6, 150, 20,
+				"Heavy opt: " + (this.settings.heavyOptimization ? "ON" : "KEEP ON!! PLEASE! (or don't)")));
 	/*	this.buttonList.add(new GuiButton(300, this.width / 2 + 5, this.height / 6 + 120 - 6, 150, 20,
 				I18n.format("options.misc"))); */
 		this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 168, I18n.format("gui.done")));
@@ -168,6 +174,38 @@ public class GuiOptions extends GuiScreen {
 			if (button.id == 110) {
 				this.mc.gameSettings.saveOptions();
 				this.mc.displayGuiScreen(new GuiCustomizeSkin(this));
+			}
+
+			if (button.id == 111) {
+				this.settings.customUiEnabled = !this.settings.customUiEnabled;
+				this.mc.gameSettings.customUiEnabled = this.settings.customUiEnabled;
+				this.settings.saveOptions();
+				this.buttonList.clear();
+				this.initGui();
+			}
+
+			if (button.id == 112) {
+				this.settings.smoothFontEnabled = !this.settings.smoothFontEnabled;
+				this.mc.gameSettings.smoothFontEnabled = this.settings.smoothFontEnabled;
+				this.settings.saveOptions();
+				this.buttonList.clear();
+				this.initGui();
+			}
+
+			if (button.id == 113) {
+				this.settings.heavyOptimization = !this.settings.heavyOptimization;
+				this.mc.gameSettings.heavyOptimization = this.settings.heavyOptimization;
+				if (this.settings.heavyOptimization) {
+					this.settings.fancyGraphics = false;
+					this.settings.ofChunkUpdates = 1;
+					this.settings.chunkFix = true;
+					this.settings.renderDistanceChunks = Math.max(2, Math.min(this.settings.renderDistanceChunks, 4));
+				} else {
+					this.settings.fancyGraphics = true;
+				}
+				this.settings.saveOptions();
+				this.buttonList.clear();
+				this.initGui();
 			}
 
 			if (button.id == 101) {

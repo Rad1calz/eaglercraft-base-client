@@ -29,6 +29,7 @@ import net.minecraft.util.ResourceLocation;
  */
 public class EaglerFontRenderer extends FontRenderer {
 
+	private final GameSettings settings;
 	private final int[] temporaryCodepointArray = new int[6553];
 
 	public static FontRenderer createSupportedFontRenderer(GameSettings gameSettingsIn, ResourceLocation location,
@@ -43,17 +44,28 @@ public class EaglerFontRenderer extends FontRenderer {
 	public EaglerFontRenderer(GameSettings gameSettingsIn, ResourceLocation location, TextureManager textureManagerIn,
 			boolean unicode) {
 		super(gameSettingsIn, location, textureManagerIn, unicode);
+		this.settings = gameSettingsIn;
 	}
 
 	@Override
 	public int drawString(String text, float x, float y, int color, boolean dropShadow) {
 		GlStateManager.enableAlpha();
+		boolean smoothShadowEnabled = this.settings != null && this.settings.smoothFontEnabled && !dropShadow
+				&& text != null && text.length() > 0;
+		boolean heavyOptimization = this.settings != null && this.settings.heavyOptimization;
+		if (smoothShadowEnabled && !heavyOptimization) {
+			int softened = (color & 0x00FFFFFF) | 0x22000000;
+			super.drawString(text, x + 1.0F, y + 1.0F, softened, false);
+		}
 		if (text == null || text.length() == 0) {
 			this.posX = x + (dropShadow ? 1 : 0);
 			this.posY = y;
 		} else {
 			if (this.unicodeFlag || !decodeASCIICodepointsAndValidate(text)) {
 				return super.drawString(text, x, y, color, dropShadow);
+			}
+			if (heavyOptimization && !dropShadow && this.settings != null && this.settings.smoothFontEnabled) {
+				this.renderEngine.bindTexture(locationFontTexture);
 			}
 			this.resetStyles();
 			if ((color & 0xFC000000) == 0) {

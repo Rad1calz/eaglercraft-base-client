@@ -5,6 +5,7 @@ import com.google.common.base.Predicates;
 
 import net.lax1dude.eaglercraft.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
 import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
@@ -445,10 +446,20 @@ public class GuiTextField extends Gui {
 	public void drawTextBox() {
 		if (this.getVisible()) {
 			if (this.getEnableBackgroundDrawing()) {
-				drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1,
-						this.yPosition + this.height + 1, -6250336);
-				drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height,
-						-16777216);
+				if (GuiShaderRenderer.isEnabled()) {
+					Minecraft minecraft = Minecraft.getMinecraft();
+					if (minecraft.currentScreen != null) {
+						GuiShaderRenderer.drawPanel(this.xPosition - 1, this.yPosition - 1, this.width + 2,
+								this.height + 2, minecraft.currentScreen.width, minecraft.currentScreen.height, 0xE10B0D10,
+								this.isFocused ? 0xFFE1283D : 0xFF75202D, 5.0F,
+								(Minecraft.getSystemTime() % 100000L) / 1000.0F);
+					}
+				} else {
+					drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1,
+							this.yPosition + this.height + 1, -6250336);
+					drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height,
+							-16777216);
+				}
 			}
 
 			int i = this.isEnabled ? this.enabledColor : this.disabledColor;

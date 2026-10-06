@@ -7,9 +7,12 @@ import com.isacofff.clientbase.settings.Setting.BooleanSetting;
 import com.isacofff.clientbase.settings.Setting.ModeSetting;
 import com.isacofff.clientbase.settings.Setting.NumberSetting;
 import com.isacofff.clientbase.Category;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
 import net.lax1dude.eaglercraft.Keyboard;
 import net.lax1dude.eaglercraft.KeyboardConstants;
 import net.lax1dude.eaglercraft.Mouse;
+import net.minecraft.client.Minecraft;
+import com.isacofff.clientbase.modules.features.ClickGui;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -18,27 +21,27 @@ public class ClickGuiScreen extends GuiScreen {
     //I won't go into too much detail here but if you need help contact me on discord, reach out to me.
     //Discord : isacofff
 
-    private static final int PANEL_BG = 0x6688AADD;
-    private static final int PANEL_OUTLINE = 0x66AAD4FF;
-    private static final int MODULE_ENABLED = 0x66AAD4FF;
-    private static final int MODULE_DISABLED = 0x6688AADD;
-    private static final int TEXT_COLOR = -1;
-    private static final int ACCENT_COLOR = 0x66CCE6FF;
+    private static final int PANEL_BG = 0xE10D0F13;
+    private static final int PANEL_OUTLINE = 0xFFE1283D;
+    private static final int MODULE_ENABLED = 0xE3291118;
+    private static final int MODULE_DISABLED = 0xD915171B;
+    private static final int TEXT_COLOR = 0xFFF4F0F1;
+    private static final int ACCENT_COLOR = 0xFFFF465A;
     private static final int PANEL_MOVE_SPEED = 15;
-    private static final int SLIDER_BG = 0x6699CCFF;
-    private static final int SLIDER_FILL = 0x667799BB;
+    private static final int SLIDER_BG = 0xFF35151C;
+    private static final int SLIDER_FILL = 0xFFEA2D43;
     private static final int SLIDER_KNOB = -1;
 
     private final ArrayList<Panel> panels = new ArrayList<>();
 
     public ClickGuiScreen() {
-        int x = 1;
-        int y = 1;
+        int x = 12;
+        int y = 38;
 
         for (Category cat : Category.values()) {
             //Cat :3
             panels.add(new Panel(cat, x, y));
-            x += 91;
+            x += 126;
         }
     }
 
@@ -81,6 +84,10 @@ public class ClickGuiScreen extends GuiScreen {
 
         this.drawDefaultBackground();
 
+        GuiShaderRenderer.drawPanel(10, 8, this.width - 20, 22, this.width, this.height, 0xEE0C0E12,
+            0xFFE1283D, 7.0F, (Minecraft.getSystemTime() % 100000L) / 1000.0F);
+        fontRendererObj.drawString("EAGLER CLIENT  /  MODULES", 18, 15, TEXT_COLOR);
+
         for (Panel panel : panels) {
             panel.draw(mouseX, mouseY);
         }
@@ -115,7 +122,12 @@ public class ClickGuiScreen extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == KeyboardConstants.KEY_ESCAPE) {
-            mc.displayGuiScreen(null);
+            ClickGui clickGui = Client.INSTANCE.manager.getModule(ClickGui.class);
+            if (clickGui != null && clickGui.isEnabled()) {
+                clickGui.toggle();
+            } else {
+                mc.displayGuiScreen(null);
+            }
         }
     }
 
@@ -131,7 +143,8 @@ public class ClickGuiScreen extends GuiScreen {
         int boxX = mouseX + 8;
         int boxY = mouseY + 8;
 
-        drawRect(boxX, boxY, boxX + textWidth + padding * 2, boxY + 12 + padding, 0x90000000);
+        GuiShaderRenderer.drawPanel(boxX, boxY, textWidth + padding * 2, 12 + padding, this.width, this.height,
+            0xF00A0C10, 0xFFE1283D, 4.0F, (Minecraft.getSystemTime() % 100000L) / 1000.0F);
         fontRendererObj.drawString(text, boxX + padding, boxY + padding, TEXT_COLOR);
     }
 
@@ -145,7 +158,7 @@ public class ClickGuiScreen extends GuiScreen {
 
     public class Panel {
         public Category category;
-        public int x, y, width = 90, height = 16;
+        public int x, y, width = 116, height = 22;
         public boolean dragging = false;
         public int dragX, dragY;
         public boolean open = true;
@@ -198,13 +211,13 @@ public class ClickGuiScreen extends GuiScreen {
                 this.y = mouseY - dragY;
             }
 
-            if (open) {
-                drawOutline(x, y, x + width, y + getTotalHeight(), PANEL_OUTLINE);
-            } else {
-                drawOutline(x, y, x + width, y + height, PANEL_OUTLINE);
-            }
-
-            drawRect(x, y, x + width, y + height, PANEL_BG);
+            int panelHeight = open ? getTotalHeight() : height;
+            GuiShaderRenderer.drawPanel(x, y, width, panelHeight, ClickGuiScreen.this.width,
+                    ClickGuiScreen.this.height, PANEL_BG, PANEL_OUTLINE, 7.0F,
+                    (Minecraft.getSystemTime() % 100000L) / 1000.0F);
+            GuiShaderRenderer.drawPanel(x, y, width, height, ClickGuiScreen.this.width,
+                    ClickGuiScreen.this.height, 0xF71A0E13, PANEL_OUTLINE, 6.0F,
+                    (Minecraft.getSystemTime() % 100000L) / 1000.0F);
 
             fontRendererObj.drawString(category.name(), x + 4, y + 4, TEXT_COLOR);
 
@@ -214,7 +227,10 @@ public class ClickGuiScreen extends GuiScreen {
 
                 for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
 
-                    drawRect(x, y + offset, x + width, y + offset + 14, module.isEnabled() ? MODULE_ENABLED : MODULE_DISABLED);
+                        GuiShaderRenderer.drawPanel(x + 2, y + offset, width - 4, 13, ClickGuiScreen.this.width,
+                            ClickGuiScreen.this.height, module.isEnabled() ? MODULE_ENABLED : MODULE_DISABLED,
+                            module.isEnabled() ? PANEL_OUTLINE : 0xFF55575D, 4.0F,
+                            (Minecraft.getSystemTime() % 100000L) / 1000.0F);
 
                     String symbol = module.open ? "-" : "+";
                     fontRendererObj.drawString(symbol, x + width - 10, y + offset + 4, ACCENT_COLOR);
@@ -225,7 +241,9 @@ public class ClickGuiScreen extends GuiScreen {
                     if (module.open && hasSettings(module)) {
                         for (Setting<?> setting : module.getSettings()) {
 
-                            drawRect(x, y + offset, x + width, y + offset + 14, MODULE_DISABLED);
+                                GuiShaderRenderer.drawPanel(x + 3, y + offset, width - 6, 13,
+                                    ClickGuiScreen.this.width, ClickGuiScreen.this.height, MODULE_DISABLED,
+                                    0xFF76202D, 4.0F, (Minecraft.getSystemTime() % 100000L) / 1000.0F);
                             drawSetting(setting, x, y + offset);
 
                             offset += 14;
@@ -248,7 +266,6 @@ public class ClickGuiScreen extends GuiScreen {
             }
 
             if (s instanceof NumberSetting number) {
-                drawRect(x, y, x + width, y + 14, MODULE_DISABLED);
                 fontRendererObj.drawString(number.getName() + " : " + number.getValue(), x + 4, y + 4, TEXT_COLOR);
                 int barX = x + 4;
                 int barY = y + 12;

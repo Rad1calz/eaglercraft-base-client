@@ -1,5 +1,8 @@
 package net.minecraft.client.gui;
 
+import com.isacofff.clientbase.modules.features.ClientOverlay;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -345,6 +348,7 @@ public class GuiIngame extends Gui {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableLighting();
 		GlStateManager.enableAlpha();
+		ClientOverlay.render(this.mc, fontrenderer, i, j);
 	}
 
 	public void renderAttackIndicator(float p_184045_1_, ScaledResolution p_184045_2_) {
@@ -472,28 +476,44 @@ public class GuiIngame extends Gui {
 	protected void renderHotbar(ScaledResolution sr, float partialTicks) {
 		if (this.mc.getRenderViewEntity() instanceof EntityPlayer) {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
 			EntityPlayer entityplayer = (EntityPlayer) this.mc.getRenderViewEntity();
 			ItemStack itemstack = entityplayer.getHeldItemOffhand();
 			EnumHandSide enumhandside = entityplayer.getPrimaryHand().opposite();
 			int i = sr.getScaledWidth() / 2;
-			float f = this.zLevel;
-			int j = 182;
-			int k = 91;
-			this.zLevel = -90.0F;
-			this.drawTexturedModalRect(i - 91, sr.getScaledHeight() - 22, 0, 0, 182, 22);
-			this.drawTexturedModalRect(i - 91 - 1 + entityplayer.inventory.currentItem * 20,
-					sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
+			int screenHeight = sr.getScaledHeight();
+			int screenWidth = sr.getScaledWidth();
+			float shaderTime = (Minecraft.getSystemTime() % 100000L) / 1000.0F;
+			if (GuiShaderRenderer.isEnabled()) {
+				GuiShaderRenderer.drawPanel(i - 91, screenHeight - 22, 182, 22, screenWidth, screenHeight,
+						0xE70A0C10, 0xFFE1283D, 7.0F, shaderTime);
+				GuiShaderRenderer.drawPanel(i - 92 + entityplayer.inventory.currentItem * 20, screenHeight - 23, 24, 22,
+						screenWidth, screenHeight, 0xF01B0C11, 0xFFFF4054, 5.0F, shaderTime);
 
-			if (!itemstack.func_190926_b()) {
-				if (enumhandside == EnumHandSide.LEFT) {
-					this.drawTexturedModalRect(i - 91 - 29, sr.getScaledHeight() - 23, 24, 22, 29, 24);
-				} else {
-					this.drawTexturedModalRect(i + 91, sr.getScaledHeight() - 23, 53, 22, 29, 24);
+				if (!itemstack.func_190926_b()) {
+					if (enumhandside == EnumHandSide.LEFT) {
+						GuiShaderRenderer.drawPanel(i - 120, screenHeight - 23, 29, 24, screenWidth, screenHeight,
+								0xE70A0C10, 0xFFE1283D, 6.0F, shaderTime);
+					} else {
+						GuiShaderRenderer.drawPanel(i + 91, screenHeight - 23, 29, 24, screenWidth, screenHeight,
+								0xE70A0C10, 0xFFE1283D, 6.0F, shaderTime);
+					}
 				}
+			} else {
+				this.mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
+				float oldZLevel = this.zLevel;
+				this.zLevel = -90.0F;
+				this.drawTexturedModalRect(i - 91, screenHeight - 22, 0, 0, 182, 22);
+				this.drawTexturedModalRect(i - 91 - 1 + entityplayer.inventory.currentItem * 20,
+						screenHeight - 23, 0, 22, 24, 22);
+				if (!itemstack.func_190926_b()) {
+					if (enumhandside == EnumHandSide.LEFT) {
+						this.drawTexturedModalRect(i - 120, screenHeight - 23, 24, 22, 29, 24);
+					} else {
+						this.drawTexturedModalRect(i + 91, screenHeight - 23, 53, 22, 29, 24);
+					}
+				}
+				this.zLevel = oldZLevel;
 			}
-
-			this.zLevel = f;
 			GlStateManager.enableRescaleNormal();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(RealOpenGLEnums.GL_SRC_ALPHA, RealOpenGLEnums.GL_ONE_MINUS_SRC_ALPHA,
@@ -545,30 +565,46 @@ public class GuiIngame extends Gui {
 	}
 
 	public void renderHorseJumpBar(ScaledResolution scaledRes, int x) {
-		this.mc.getTextureManager().bindTexture(Gui.ICONS);
 		float f = this.mc.player.getHorseJumpPower();
-		int i = 182;
-		int j = (int) (f * 183.0F);
+		int fillWidth = Math.min(182, (int) (f * 183.0F));
 		int k = scaledRes.getScaledHeight() - 32 + 3;
-		this.drawTexturedModalRect(x, k, 0, 84, 182, 5);
-
-		if (j > 0) {
-			this.drawTexturedModalRect(x, k, 0, 89, j, 5);
+		int screenWidth = scaledRes.getScaledWidth();
+		int screenHeight = scaledRes.getScaledHeight();
+		float shaderTime = (Minecraft.getSystemTime() % 100000L) / 1000.0F;
+		if (GuiShaderRenderer.isEnabled()) {
+			GuiShaderRenderer.drawPanel(x, k, 182, 5, screenWidth, screenHeight, 0xFF0B0D11, 0xFFE1283D,
+					2.0F, shaderTime);
+			if (fillWidth > 0) {
+				GuiShaderRenderer.drawPanel(x, k, fillWidth, 5, screenWidth, screenHeight, 0xFFB91B30,
+						0xFFFF4A60, 2.0F, shaderTime);
+			}
+		} else {
+			this.mc.getTextureManager().bindTexture(Gui.ICONS);
+			this.drawTexturedModalRect(x, k, 0, 84, 182, 5);
+			if (fillWidth > 0) this.drawTexturedModalRect(x, k, 0, 89, fillWidth, 5);
 		}
 	}
 
 	public void renderExpBar(ScaledResolution scaledRes, int x) {
-		this.mc.getTextureManager().bindTexture(Gui.ICONS);
 		int i = this.mc.player.xpBarCap();
 
 		if (i > 0) {
-			int j = 182;
-			int k = (int) (this.mc.player.experience * 183.0F);
+			int fillWidth = Math.min(182, (int) (this.mc.player.experience * 183.0F));
 			int l = scaledRes.getScaledHeight() - 32 + 3;
-			this.drawTexturedModalRect(x, l, 0, 64, 182, 5);
-
-			if (k > 0) {
-				this.drawTexturedModalRect(x, l, 0, 69, k, 5);
+			int screenWidth = scaledRes.getScaledWidth();
+			int screenHeight = scaledRes.getScaledHeight();
+			float shaderTime = (Minecraft.getSystemTime() % 100000L) / 1000.0F;
+			if (GuiShaderRenderer.isEnabled()) {
+				GuiShaderRenderer.drawPanel(x, l, 182, 5, screenWidth, screenHeight, 0xFF0B0D11,
+						0xFFE1283D, 2.0F, shaderTime);
+				if (fillWidth > 0) {
+					GuiShaderRenderer.drawPanel(x, l, fillWidth, 5, screenWidth, screenHeight, 0xFFB91B30,
+							0xFFFF4A60, 2.0F, shaderTime);
+				}
+			} else {
+				this.mc.getTextureManager().bindTexture(Gui.ICONS);
+				this.drawTexturedModalRect(x, l, 0, 64, 182, 5);
+				if (fillWidth > 0) this.drawTexturedModalRect(x, l, 0, 69, fillWidth, 5);
 			}
 		}
 
@@ -580,7 +616,8 @@ public class GuiIngame extends Gui {
 			this.getFontRenderer().drawString(s, i1 - 1, j1, 0);
 			this.getFontRenderer().drawString(s, i1, j1 + 1, 0);
 			this.getFontRenderer().drawString(s, i1, j1 - 1, 0);
-			this.getFontRenderer().drawString(s, i1, j1, 8453920);
+			this.getFontRenderer().drawString(s, i1, j1,
+					GuiShaderRenderer.isEnabled() ? 0xFFFF465A : 8453920);
 		}
 	}
 

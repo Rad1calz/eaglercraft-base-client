@@ -13,6 +13,7 @@ import net.lax1dude.eaglercraft.Keyboard;
 import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.PauseMenuCustomizeState;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
 import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
@@ -35,6 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
+	private static final ResourceLocation SUNSET_BACKGROUND = new ResourceLocation("eagler:gui/SunsetBG.jpeg");
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	/** Reference to the Minecraft object. */
@@ -493,7 +495,22 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
 	 * gradient over background.png
 	 */
 	public void drawDefaultBackground() {
-		this.drawWorldBackground(0);
+		if (GuiShaderRenderer.isEnabled()) {
+			this.drawSunsetBackground();
+		} else {
+			this.drawWorldBackground(0);
+		}
+	}
+
+	protected void drawSunsetBackground() {
+		GlStateManager.disableLighting();
+		GlStateManager.disableFog();
+		GlStateManager.enableTexture2D();
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		this.mc.getTextureManager().bindTexture(SUNSET_BACKGROUND);
+		drawModalRectWithCustomSizedTexture(0, 0, 0.0F, 0.0F, this.width, this.height, 596.0F, 335.0F);
+		GuiShaderRenderer.drawPanel(0, 0, this.width, this.height, this.width, this.height, 0x9C090C12,
+				0xFFE1283D, 0.0F, (Minecraft.getSystemTime() % 100000L) / 1000.0F);
 	}
 
 	public void drawWorldBackground(int tint) {

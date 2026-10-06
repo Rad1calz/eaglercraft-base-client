@@ -6,6 +6,7 @@ import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.internal.EnumCursorType;
 import net.lax1dude.eaglercraft.internal.FileChooserResult;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
 import net.lax1dude.eaglercraft.opengl.ImageData;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
@@ -70,6 +71,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 		buttonList.add(new GuiButton(0, width / 2 - 100, height / 6 + 168, I18n.format("gui.done")));
 		buttonList.add(new GuiButton(1, width / 2 - 21, height / 6 + 110, 71, 20, I18n.format("editProfile.addSkin")));
 		buttonList.add(new GuiButton(2, width / 2 - 21 + 71, height / 6 + 110, 72, 20, I18n.format("editProfile.clearSkin")));
+		buttonList.add(new GuiButton(3, 12, height - 38, 104, 20, "Local profiles"));
 		updateOptions();
 	}
 
@@ -94,6 +96,13 @@ public class GuiScreenEditProfile extends GuiScreen {
 
 	public void drawScreen(int mx, int my, float partialTicks) {
 		drawDefaultBackground();
+		int panelTop = Math.max(28, height / 6 - 10);
+		int panelHeight = Math.max(140, Math.min(height - panelTop - 42, 276));
+		float shaderTime = (net.minecraft.client.Minecraft.getSystemTime() % 100000L) / 1000.0F;
+		GuiShaderRenderer.drawPanel(width / 2 - 204, panelTop, 168, panelHeight, width, height,
+				0xE10A0C10, 0xFFE1283D, 9.0F, shaderTime);
+		GuiShaderRenderer.drawPanel(width / 2 - 24, panelTop, 228, panelHeight, width, height,
+				0xE10A0C10, 0xFFE1283D, 9.0F, shaderTime);
 		drawCenteredString(fontRendererObj, screenTitle, width / 2, 15, 16777215);
 		drawString(fontRendererObj, I18n.format("editProfile.username"), width / 2 - 20, height / 6 + 8, 10526880);
 		drawString(fontRendererObj, I18n.format("editProfile.playerSkin"), width / 2 - 20, height / 6 + 66, 10526880);
@@ -106,8 +115,8 @@ public class GuiScreenEditProfile extends GuiScreen {
 		int skinWidth = 80;
 		int skinHeight = 130;
 		
-		drawRect(skinX, skinY, skinX + skinWidth, skinY + skinHeight, 0xFFA0A0A0);
-		drawRect(skinX + 1, skinY + 1, skinX + skinWidth - 1, skinY + skinHeight - 1, 0xFF000015);
+		GuiShaderRenderer.drawPanel(skinX, skinY, skinWidth, skinHeight, width, height, 0xF007090D,
+				0xFFFF344A, 6.0F, shaderTime);
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(skinX + 2, skinY - 9, 0.0f);
@@ -148,9 +157,8 @@ public class GuiScreenEditProfile extends GuiScreen {
 		skinWidth = 140;
 		skinHeight = 22;
 		
-		drawRect(skinX, skinY, skinX + skinWidth, skinY + skinHeight, -6250336);
-		drawRect(skinX + 1, skinY + 1, skinX + skinWidth - 21, skinY + skinHeight - 1, -16777216);
-		drawRect(skinX + skinWidth - 20, skinY + 1, skinX + skinWidth - 1, skinY + skinHeight - 1, -16777216);
+		GuiShaderRenderer.drawPanel(skinX, skinY, skinWidth, skinHeight, width, height, 0xF00B0D11,
+				0xFFE1283D, 5.0F, shaderTime);
 		
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		
@@ -177,14 +185,16 @@ public class GuiScreenEditProfile extends GuiScreen {
 			scrollPos = 0;
 		}
 		if(dropDownOpen) {
-			drawRect(skinX, skinY, skinX + skinWidth, skinY + skinHeight, -6250336);
-			drawRect(skinX + 1, skinY + 1, skinX + skinWidth - 1, skinY + skinHeight - 1, -16777216);
+			GuiShaderRenderer.drawPanel(skinX, skinY, skinWidth, skinHeight, width, height, 0xF00B0D11,
+					0xFFE1283D, 5.0F, shaderTime);
 			for(int i = 0; i < slotsVisible; i++) {
 				if(i + scrollPos < dropDownOptions.length) {
 					if(selectedSlot == i + scrollPos) {
-						drawRect(skinX + 1, skinY + i*10 + 4, skinX + skinWidth - 1, skinY + i*10 + 14, 0x77ffffff);
+						GuiShaderRenderer.drawPanel(skinX + 3, skinY + i * 10 + 4, skinWidth - 6, 10, width, height,
+								0xCC42121E, 0xFFFF4054, 3.0F, shaderTime);
 					}else if(mx >= skinX && mx < (skinX + skinWidth - 10) && my >= (skinY + i*10 + 5) && my < (skinY + i*10 + 15)) {
-						drawRect(skinX + 1, skinY + i*10 + 4, skinX + skinWidth - 1, skinY + i*10 + 14, 0x55ffffff);
+						GuiShaderRenderer.drawPanel(skinX + 3, skinY + i * 10 + 4, skinWidth - 6, 10, width, height,
+								0x88421820, 0xFFE1283D, 3.0F, shaderTime);
 					}
 					drawString(fontRendererObj, dropDownOptions[i + scrollPos], skinX + 5, skinY + 5 + i*10, 14737632);
 				}
@@ -313,11 +323,17 @@ public class GuiScreenEditProfile extends GuiScreen {
 			if(par1GuiButton.id == 0) {
 				safeProfile();
 				EaglerProfile.save();
-				if(!this.mc.gameSettings.hideDefaultUsernameWarning && EaglerProfile.isDefaultUsername(EaglerProfile.getName())) {
+				if(this.mc.world != null) {
+					LocalProfileStore.disconnectForSwitch(this.mc);
+				}else if(!this.mc.gameSettings.hideDefaultUsernameWarning && EaglerProfile.isDefaultUsername(EaglerProfile.getName())) {
 					this.mc.displayGuiScreen(new GuiScreenDefaultUsernameNote(this, parent));
 				}else {
 					this.mc.displayGuiScreen(parent);
 				}
+			}else if(par1GuiButton.id == 3) {
+				safeProfile();
+				EaglerProfile.save();
+				this.mc.displayGuiScreen(new GuiScreenLocalProfiles(this));
 			}else if(par1GuiButton.id == 1) {
 				EagRuntime.displayFileChooser("image/png", "png");
 			}else if(par1GuiButton.id == 2) {

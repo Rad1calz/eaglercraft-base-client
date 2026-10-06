@@ -23,6 +23,7 @@ import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerBusy;
 import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerStartup;
 import net.lax1dude.eaglercraft.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
 import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -451,14 +452,22 @@ public class GuiMainMenu extends GuiScreen {
 	 */
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.panoramaTimer += partialTicks;
-		GlStateManager.disableAlpha();
-		this.renderSkybox(mouseX, mouseY, partialTicks);
-		GlStateManager.enableAlpha();
+		if (GuiShaderRenderer.isEnabled()) {
+			this.drawSunsetBackground();
+		} else {
+			GlStateManager.disableAlpha();
+			this.renderSkybox(mouseX, mouseY, partialTicks);
+			GlStateManager.enableAlpha();
+		}
 		int i = 274;
 		int j = this.width / 2 - 137;
 		int k = 30;
-		this.drawGradientRect(0, 0, this.width, this.height, -2130706433, 16777215);
-		this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
+		if (!GuiShaderRenderer.isEnabled()) {
+			this.drawGradientRect(0, 0, this.width, this.height, -2130706433, 16777215);
+			this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
+		}
+		GuiShaderRenderer.drawPanel(0, 0, this.width, this.height, this.width, this.height, 0x65070A0D,
+				0xFFE1283D, 0.0F, (Minecraft.getSystemTime() % 100000L) / 1000.0F);
 		this.mc.getTextureManager().bindTexture(MINECRAFT_TITLE_TEXTURES);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 

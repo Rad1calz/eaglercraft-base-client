@@ -1,7 +1,6 @@
 package net.minecraft.client.gui;
 
-import net.lax1dude.eaglercraft.opengl.GlStateManager;
-import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
+import net.lax1dude.eaglercraft.opengl.GuiShaderRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -70,29 +69,18 @@ public class GuiButton extends Gui {
 	public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_) {
 		if (this.visible) {
 			FontRenderer fontrenderer = p_191745_1_.fontRendererObj;
-			p_191745_1_.getTextureManager().bindTexture(BUTTON_TEXTURES);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 					&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
-			int i = this.getHoverState(this.hovered);
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(RealOpenGLEnums.GL_SRC_ALPHA, RealOpenGLEnums.GL_ONE_MINUS_SRC_ALPHA,
-					RealOpenGLEnums.GL_ONE, RealOpenGLEnums.GL_ZERO);
-			GlStateManager.blendFunc(RealOpenGLEnums.GL_SRC_ALPHA, RealOpenGLEnums.GL_ONE_MINUS_SRC_ALPHA);
-			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2,
-					46 + i * 20, this.width / 2, this.height);
-			this.mouseDragged(p_191745_1_, p_191745_2_, p_191745_3_);
-			int j = 14737632;
-
-			if (!this.enabled) {
-				j = 10526880;
-			} else if (this.hovered) {
-				j = 16777120;
+			int fillColor = !this.enabled ? 0xD318191D : (this.hovered ? 0xF02B1117 : 0xE1121418);
+			int accentColor = this.enabled ? 0xFFE52A40 : 0xFF777777;
+			if (p_191745_1_.currentScreen != null) {
+				GuiShaderRenderer.drawPanel(this.xPosition, this.yPosition, this.width, this.height,
+						p_191745_1_.currentScreen.width, p_191745_1_.currentScreen.height, fillColor, accentColor, 5.0F,
+						(Minecraft.getSystemTime() % 100000L) / 1000.0F);
 			}
-
+			this.mouseDragged(p_191745_1_, p_191745_2_, p_191745_3_);
 			this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2,
-					this.yPosition + (this.height - 8) / 2, j);
+					this.yPosition + (this.height - 8) / 2, this.enabled ? 0xFFF2F0F0 : 0xFF858585);
 		}
 	}
 
